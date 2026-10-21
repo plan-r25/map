@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>i’m sorry — a little garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky1:#fff3e8;--sky2:#fde2e8;--sky3:#fbd1de;
+  --hill1:#d6e9c9;--hill2:#bcdcae;
+  --g1:#c6e2a6;--g2:#92c47e;--g3:#609f5b;
+  --soil1:#9c7766;--soil2:#6f5249;
+  --ink:#a3365f;--glow:rgba(255,250,240,.95);
+  --btn1:#fff9f5;--btn2:#ffe2ea;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --sky1:#2c2138;--sky2:#4b2d4b;--sky3:#70405c;
+    --hill1:#3e5b4b;--hill2:#314e40;
+    --g1:#4e7b59;--g2:#3b6749;--g3:#2b4e3b;
+    --soil1:#5b4141;--soil2:#3e2c2e;
+    --ink:#ffd2e0;--glow:rgba(255,170,200,.35);
+    --btn1:#5b3657;--btn2:#7b4569;
+  }
+}
+:root[data-theme="dark"]{
+  --sky1:#2c2138;--sky2:#4b2d4b;--sky3:#70405c;
+  --hill1:#3e5b4b;--hill2:#314e40;
+  --g1:#4e7b59;--g2:#3b6749;--g3:#2b4e3b;
+  --soil1:#5b4141;--soil2:#3e2c2e;
+  --ink:#ffd2e0;--glow:rgba(255,170,200,.35);
+  --btn1:#5b3657;--btn2:#7b4569;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  background:linear-gradient(var(--sky1),var(--sky2) 50%,var(--sky3));
+  color:var(--ink);
+  font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.stage{position:fixed;inset:0;height:100vh;height:100svh;overflow:hidden}
+#garden{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* ---------- light, particles, petals ---------- */
+.sun,.rays,.fireflies,.petals{position:absolute;inset:0;pointer-events:none}
+.sun{background:radial-gradient(circle at 86% 4%,rgba(255,244,205,.85),rgba(255,232,200,.25) 28%,transparent 55%)}
+.rays{
+  background:repeating-conic-gradient(from 195deg at 86% -8%,rgba(255,247,222,.5) 0 2.5deg,transparent 2.5deg 9deg);
+  -webkit-mask-image:radial-gradient(circle at 86% -8%,#000,transparent 75%);
+  mask-image:radial-gradient(circle at 86% -8%,#000,transparent 75%);
+  animation:rays 9s ease-in-out infinite alternate;
+}
+@keyframes rays{from{opacity:.25}to{opacity:.6}}
+.fly{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,#fff9dd,rgba(255,225,160,0) 70%);
+  box-shadow:0 0 10px 3px rgba(255,232,175,.7);
+  animation:fly var(--d) ease-in-out infinite alternate;will-change:transform,opacity;
+}
+@keyframes fly{
+  from{transform:translate3d(0,0,0);opacity:.15}
+  50%{opacity:.95}
+  to{transform:translate3d(var(--dx),var(--dy),0);opacity:.25}
+}
+.petals{opacity:0;transition:opacity 3s ease;overflow:hidden}
+.petals-on .petals{opacity:1}
+.petal{
+  position:absolute;top:0;left:var(--l);width:var(--w);height:calc(var(--w)*1.25);
+  background:linear-gradient(135deg,#ffd6e2,#ef8cae);
+  border-radius:80% 0 80% 20%;opacity:.85;
+  animation:drift var(--dur) linear var(--dl) infinite paused;will-change:transform;
+}
+.petals-on .petal{animation-play-state:running}
+@keyframes drift{
+  0%{transform:translate3d(0,-12svh,0) rotate(0)}
+  33%{transform:translate3d(calc(var(--x)*.3 + 5vw),30svh,0) rotate(calc(var(--r)*.35))}
+  66%{transform:translate3d(calc(var(--x)*.6 - 4vw),68svh,0) rotate(calc(var(--r)*.7))}
+  100%{transform:translate3d(var(--x),112svh,0) rotate(var(--r))}
+}
+
+/* ---------- message ---------- */
+.msg{position:absolute;left:0;right:0;top:calc(10svh + env(safe-area-inset-top,0px));text-align:center;pointer-events:none;padding:0 4vw}
+.hint{
+  position:absolute;left:0;right:0;top:1.2em;margin:0;font-style:italic;
+  font-size:clamp(1.2rem,4.2vw,1.7rem);letter-spacing:.04em;opacity:.85;
+  transition:opacity 1.2s ease;text-shadow:0 0 14px var(--glow);
+}
+.go .hint{opacity:0}
+.msg h1{
+  margin:0;font-family:'Great Vibes','Snell Roundhand',cursive;font-weight:400;line-height:1.15;
+  font-size:clamp(3.4rem,min(17vw,24svh),9rem);color:var(--ink);
+  text-shadow:0 0 28px var(--glow),0 0 10px var(--glow),0 2px 12px rgba(255,255,255,.4);
+}
+.ch{
+  display:inline-block;white-space:pre;opacity:0;filter:blur(7px);transform:translateY(10px);
+  transition:opacity 2s ease,filter 2s ease,transform 2s ease;transition-delay:calc(var(--k)*110ms);
+}
+.show .ch{opacity:1;filter:none;transform:none}
+
+/* ---------- button ---------- */
+.bloom-btn{
+  position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + max(18px,4svh));
+  transform:translateX(-50%);z-index:5;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.6em;padding:.8em 1.9em;
+  font:italic 500 1.35rem/1 'Cormorant Garamond',Georgia,serif;letter-spacing:.03em;color:var(--ink);
+  background:linear-gradient(var(--btn1),var(--btn2));
+  border:1px solid rgba(255,255,255,.7);border-radius:999px;
+  box-shadow:0 6px 22px rgba(163,54,95,.25),inset 0 1px 0 rgba(255,255,255,.8);
+  transition:transform .35s ease,box-shadow .35s ease;
+}
+.bloom-btn:hover{transform:translateX(-50%) translateY(-3px);box-shadow:0 12px 30px rgba(163,54,95,.35),0 0 24px rgba(255,200,220,.7)}
+.bloom-btn:active{transform:translateX(-50%) scale(.97)}
+.bloom-btn:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+.bloom-btn svg{width:1.1em;height:1.1em}
+
+/* ---------- garden animation (SVG) ---------- */
+@keyframes sway{from{transform:rotate(calc(var(--amp)*-1))}to{transform:rotate(var(--amp))}}
+.plant,.sw{animation:sway var(--sd) ease-in-out infinite alternate;will-change:transform}
+.sw{transform-origin:0 0}
+.blade{
+  transform:scaleY(var(--s0));transform-origin:0 0;
+  transition:transform 2.6s cubic-bezier(.25,.8,.3,1) var(--bd);
+}
+.started .blade{transform:scaleY(1)}
+.sprout{transition:opacity 1.6s ease,transform 1.6s ease;transform-origin:0 0}
+.started .sprout{opacity:0;transform:scale(.3)}
+.stem{
+  fill:none;stroke-linecap:round;stroke-dasharray:1 2;stroke-dashoffset:1;opacity:0;
+  transition:stroke-dashoffset var(--gt) cubic-bezier(.4,.1,.3,1),opacity .4s ease;
+}
+.grow .stem{stroke-dashoffset:0;opacity:1}
+.leaf{transform:scale(0);transform-origin:0 0;transition:transform 1.5s cubic-bezier(.3,1.5,.5,1)}
+.grow .leaf{transform:scale(var(--s));transition-delay:var(--dl)}
+.wf{transform:scale(0);transition:transform 1.3s cubic-bezier(.3,1.6,.5,1)}
+.grow .wf{transform:scale(1);transition-delay:calc(var(--gt)*.95)}
+.wf:hover{transform:scale(1.15)!important;transition-delay:0s!important}
+.calyx,.bud{transform:scale(0);transform-origin:0 0;transition:transform 1s cubic-bezier(.3,1.5,.5,1)}
+.budded .calyx,.budded .bud{transform:scale(1)}
+.open .bud{transform:scale(1.25);opacity:0;transition:transform 1.4s ease,opacity 1s ease 1s}
+.pulse{transform-origin:0 0;transition:transform .8s ease}
+.pulse:hover{transform:scale(1.06)}
+.layer{
+  opacity:0;transform:scale(.2) rotate(var(--rot));transform-origin:0 0;
+  transition:transform 2.4s cubic-bezier(.2,.9,.25,1),opacity 1.4s ease;
+}
+.open .layer{opacity:1;transform:scale(1) rotate(0);transition-delay:calc(var(--k)*.45s)}
+
+body.reset *,body.reset *::before{transition:none!important}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before{animation:none!important;transition:none!important}
+  .petals,.fireflies{display:none}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <svg id="garden" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="gGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--g1)"/><stop offset=".35" style="stop-color:var(--g2)"/><stop offset="1" style="stop-color:var(--g3)"/></linearGradient>
+      <radialGradient id="gSoil"><stop offset="0" style="stop-color:var(--soil1)"/><stop offset="1" style="stop-color:var(--soil2)"/></radialGradient>
+      <linearGradient id="pA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6ee"/><stop offset=".55" stop-color="#f8b6cb"/><stop offset="1" stop-color="#e68cab"/></linearGradient>
+      <linearGradient id="pB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fcc8d7"/><stop offset=".55" stop-color="#f193b3"/><stop offset="1" stop-color="#d96a92"/></linearGradient>
+      <linearGradient id="pC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6a3be"/><stop offset=".55" stop-color="#e36a92"/><stop offset="1" stop-color="#c64776"/></linearGradient>
+      <linearGradient id="pD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ea7a9f"/><stop offset=".55" stop-color="#cf4d7d"/><stop offset="1" stop-color="#a73262"/></linearGradient>
+      <radialGradient id="gCore"><stop offset="0" stop-color="#d95d8b"/><stop offset="1" stop-color="#8f2349"/></radialGradient>
+      <linearGradient id="gBud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8aac4"/><stop offset="1" stop-color="#d9578a"/></linearGradient>
+      <linearGradient id="gLeaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#98d48c"/><stop offset="1" stop-color="#4f9a57"/></linearGradient>
+      <path id="petal" d="M0 0C-.9-.15-1.08-.95-.35-1.08Q0-1.16 .35-1.08C1.08-.95 .9-.15 0 0Z"/>
+    </defs>
+    <g id="scene"></g>
+  </svg>
+  <div class="sun"></div><div class="rays"></div>
+  <div class="fireflies" id="flies"></div>
+  <div class="petals" id="petals"></div>
+  <div class="msg" id="msg">
+    <p class="hint" id="hint">a little garden is waiting for you</p>
+    <h1 id="sorry" aria-label="i’m sorry"></h1>
+  </div>
+  <button class="bloom-btn" id="bloomBtn" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21C6 16 3 12.5 3 9a4.5 4.5 0 0 1 9-1 4.5 4.5 0 0 1 9 1c0 3.500-3 7-9 12Z" fill="currentColor" opacity=".8"/></svg>
+    Bloom for me
+  </button>
+  <p style="font-family: playfair display; color: #ccc;">from Polan</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('garden'), scene = document.getElementById('scene');
+  const msg = document.getElementById('msg'), btn = document.getElementById('bloomBtn');
+  const body = document.body;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const BLADES = ['#a2d38a', '#80ba70', '#b7de9b', '#6cab64'];
+  const WILD = ['#fffaf0', '#d5c0f5', '#fde9a6', '#ffd1df', '#c9e4ff'];
+  let plants = [], timers = [], state = 'idle', lastAspect = 0;
+
+  /* ---------- helpers ---------- */
+  const rng = s => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const node = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+
+  /* ---------- garden pieces ---------- */
+  // A tuft of swaying grass blades that grows from the ground.
+  function clump(parent, x, y, n, hMin, hMax, R, s0) {
+    const g = node('g', { transform: `translate(${x} ${y})` }, parent);
+    const sw = node('g', { class: 'sw', style: `--sd:${(3 + R() * 3).toFixed(2)}s;--amp:${(1.5 + R() * 2.5).toFixed(1)}deg;animation-delay:-${(R() * 5).toFixed(2)}s` }, g);
+    for (let i = 0; i < n; i++) {
+      const h = hMin + R() * (hMax - hMin), l = (R() - .5) * h * .7, w = 2 + R() * 2.5, ox = (i - n / 2) * 4 + (R() - .5) * 3;
+      node('path', {
+        class: 'blade', fill: BLADES[(R() * BLADES.length) | 0],
+        d: `M${ox - w} 0Q${ox + l * .2} ${-h * .55} ${ox + l} ${-h}Q${ox + w * .6 + l * .3} ${-h * .5} ${ox + w} 0Z`,
+        style: `--s0:${s0};--bd:${(R() * 1.8).toFixed(2)}s`
+      }, sw);
+    }
+  }
+
+  // Tiny seedlings on the bare soil, shown before the garden begins.
+  function sprout(parent, x, y) {
+    const g = node('g', { transform: `translate(${x} ${y})` }, parent);
+    const s = node('g', { class: 'sprout' }, g);
+    node('path', { d: 'M0 0Q3-8 0-15', stroke: '#7dbb70', 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round' }, s);
+    node('path', { d: 'M0-13C-8-18-12-14-12-10C-6-9-2-10 0-13Z', fill: '#98d48c' }, s);
+    node('path', { d: 'M0-14C7-20 12-15 11-11C6-10 2-11 0-14Z', fill: '#8ccb80' }, s);
+  }
+
+  // A leaf that unfolds along a stem (delay `dl` follows stem growth).
+  function leaf(parent, x, y, angle, size, dl) {
+    const g = node('g', { transform: `translate(${x} ${y}) rotate(${angle})` }, parent);
+    const l = node('g', { class: 'leaf', style: `--s:${size};--dl:${dl}s` }, g);
+    node('path', { d: 'M0 0C9-15 32-17 50 0C32 15 9 15 0 0Z', fill: 'url(#gLeaf)' }, l);
+    node('path', { d: 'M3 0H42', stroke: '#fff', 'stroke-opacity': .4, 'stroke-width': 1, fill: 'none' }, l);
+  }
+
+  // A stem on a quadratic curve, with leaves placed along it.
+  function stemPlant(parent, o) {
+    const { bx, by, tx, ty, cx, cy, R } = o;
+    const sd = 4 + R() * 3;
+    const g = node('g', {
+      class: 'plant',
+      style: `transform-origin:${bx}px ${by}px;--gt:${o.gt}s;--amp:${o.amp}deg;--sd:${sd.toFixed(2)}s;animation-delay:-${(R() * sd).toFixed(2)}s`
+    }, parent);
+    node('path', { class: 'stem', pathLength: 1, d: `M${bx} ${by}Q${cx} ${cy} ${tx} ${ty}`, stroke: o.color, 'stroke-width': o.sw }, g);
+    for (let i = 0; i < o.leaves; i++) {
+      const t = o.leaves > 1 ? .22 + i * (.56 / (o.leaves - 1)) : .5, u = 1 - t;
+      const x = u * u * bx + 2 * u * t * cx + t * t * tx, y = u * u * by + 2 * u * t * cy + t * t * ty;
+      const side = i % 2 ? 1 : -1, ang = side > 0 ? -(25 + R() * 25) : -(155 - R() * 25);
+      leaf(g, x.toFixed(1), y.toFixed(1), ang.toFixed(0), (o.leafSize * (.8 + R() * .5)).toFixed(2), (o.gt * t * .85 + .2).toFixed(2));
+    }
+    return g;
+  }
+
+  // A layered pink rose: calyx, closed bud, then five petal layers (inner -> outer).
+  function rose(parent, tx, ty, r, R) {
+    const g = node('g', { transform: `translate(${tx.toFixed(1)} ${ty.toFixed(1)}) rotate(${((R() - .5) * 16).toFixed(1)})` }, parent);
+    const k = r / 45;
+    const calyx = node('g', { class: 'calyx' }, g);
+    for (let i = 0; i < 5; i++) node('path', { d: 'M0 0C-9 4-15 12-12 26C-4 19 0 9 0 0Z', fill: '#6fae67', transform: `rotate(${i * 72}) scale(${k * 1.1})` }, calyx);
+    const pulse = node('g', { class: 'pulse' }, g);
+    const layers = [ // [petals, size, gradient, angle offset, k (open order, inner first)]
+      [6, 1, 'pA', 0, 4], [6, .82, 'pB', 30, 3], [5, .62, 'pC', 12, 2], [4, .42, 'pD', 40, 1]
+    ];
+    for (const [n, sc, grad, off, kk] of layers) {
+      const l = node('g', { class: 'layer', style: `--k:${kk};--rot:${kk % 2 ? 28 + kk * 6 : -(28 + kk * 6)}deg` }, pulse);
+      for (let i = 0; i < n; i++) {
+        node('use', {
+          href: '#petal', fill: `url(#${grad})`, stroke: '#fff', 'stroke-opacity': .35, 'stroke-width': .02,
+          transform: `rotate(${(off + i * 360 / n + (R() - .5) * 10).toFixed(1)}) scale(${(r * sc).toFixed(1)})`
+        }, l);
+      }
+    }
+    const core = node('g', { class: 'layer', style: '--k:0;--rot:-40deg' }, pulse);
+    node('circle', { r: (r * .2).toFixed(1), fill: 'url(#gCore)' }, core);
+    node('path', { d: 'M-.08 .02C-.1-.12 .1-.14 .12 0C.13 .12-.08 .14-.1 .04', transform: `scale(${r * 1.1})`, fill: 'none', stroke: '#7d1f45', 'stroke-width': .03, 'stroke-linecap': 'round' }, core);
+    const bud = node('g', { class: 'bud', transform: `scale(1)` }, g); // outer wrapper keeps CSS scale on inner
+    const bi = node('g', { transform: `translate(0 ${(10 * k).toFixed(1)}) scale(${k}) translate(0 -10)` }, bud);
+    node('path', { d: 'M0 10C-17 2-15-28 0-42C15-28 17 2 0 10Z', fill: 'url(#gBud)' }, bi);
+    node('path', { d: 'M0-42C-6-20-4-4 0 10', fill: 'none', stroke: '#fff', 'stroke-opacity': .35, 'stroke-width': 1.2 }, bi);
+    for (const s of [-1, 1]) node('path', { d: 'M0 10C-12 8-20-2-20-16C-9-10-3-3 0 10Z', fill: '#6fae67', transform: `scale(${s} 1)` }, bi);
+  }
+
+  // A small five-petal wildflower head.
+  function wildHead(parent, x, y, s, R) {
+    const g = node('g', { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(2)}) rotate(${(R() * 72).toFixed(0)})` }, parent);
+    const wf = node('g', { class: 'wf' }, g);
+    const c = WILD[(R() * WILD.length) | 0];
+    for (let i = 0; i < 5; i++) node('ellipse', { cx: 0, cy: -7, rx: 4.4, ry: 7.5, fill: c, stroke: '#e9b8c9', 'stroke-opacity': .5, 'stroke-width': .6, transform: `rotate(${i * 72})` }, wf);
+    node('circle', { r: 3.2, fill: '#ffd76a' }, wf);
+  }
+
+  /* ---------- build the whole garden for the current viewport ---------- */
+  function build() {
+    const H = 800, aspect = innerWidth / innerHeight;
+    const W = Math.round(Math.min(1500, Math.max(380, H * aspect)));
+    lastAspect = aspect;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    scene.textContent = ''; plants = [];
+    const R = rng(11), gy = H * .8;
+
+    // distant hills and ground
+    node('path', { d: `M0 ${gy - 50}C${W * .2} ${gy - 140} ${W * .4} ${gy - 50} ${W * .6} ${gy - 100}S${W * .9} ${gy - 130} ${W} ${gy - 60}V${H}H0Z`, fill: 'var(--hill1)' }, scene);
+    node('path', { d: `M0 ${gy - 20}C${W * .25} ${gy - 70} ${W * .55} ${gy - 20} ${W * .8} ${gy - 60}S${W} ${gy - 40} ${W} ${gy - 30}V${H}H0Z`, fill: 'var(--hill2)' }, scene);
+    node('path', { d: `M0 ${gy}C${W * .25} ${gy - 14} ${W * .5} ${gy + 8} ${W * .75} ${gy - 8}S${W} ${gy + 4} ${W} ${gy - 4}V${H}H0Z`, fill: 'url(#gGround)' }, scene);
+
+    // empty soil patch with pebbles and seedlings
+    const soilCy = gy + H * .075, soilRx = W * .4, soilRy = H * .042;
+    node('ellipse', { cx: W / 2, cy: soilCy, rx: soilRx, ry: soilRy, fill: 'url(#gSoil)' }, scene);
+    for (let i = 0; i < 22; i++) node('ellipse', { cx: W / 2 + (R() - .5) * soilRx * 1.7, cy: soilCy + (R() - .5) * soilRy * 1.5, rx: 1.5 + R() * 2.5, ry: 1 + R(), fill: 'var(--soil2)', opacity: .45 }, scene);
+    for (let i = 0; i < 5; i++) sprout(scene, W / 2 + (i - 2) * soilRx * .32 + (R() - .5) * 14, soilCy + (R() - .5) * soilRy * .8);
+
+    // back grass (avoids the soil so it looks bare at first)
+    for (let x = 0; x < W; x += 13 + R() * 9) {
+      const inSoil = Math.abs(x - W / 2) < soilRx * .92;
+      clump(scene, x, gy + 4 + R() * H * .035, 3, 22, 46, R, inSoil ? .06 : .55);
+    }
+
+    // wildflowers
+    const wn = Math.max(7, Math.min(20, Math.round(W / 70)));
+    for (let i = 0; i < wn; i++) {
+      const bx = W * (.04 + .92 * R()), by = gy + H * (.01 + .08 * R()), h = H * (.07 + .09 * R());
+      const tx = bx + (R() - .5) * 24, ty = by - h;
+      const g = stemPlant(scene, { bx, by, tx, ty, cx: (bx + tx) / 2 + (R() - .5) * 30, cy: (by + ty) / 2, R, gt: 2 + R() * 1.2, amp: 2, color: '#7dbb70', sw: 2.2, leaves: 2, leafSize: .35 });
+      wildHead(g, tx, ty, .8 + R() * .5, R);
+      plants.push({ el: g, kind: 'wild', rank: R() });
+    }
+
+    // roses
+    const count = Math.max(5, Math.min(10, Math.round(W / 105)));
+    const x0 = W * .12, step = (W * .76) / (count - 1), baseR = Math.min(H * .062, step * .62);
+    for (let i = 0; i < count; i++) {
+      const bx = x0 + i * step + (R() - .5) * step * .35, by = soilCy + (R() - .5) * soilRy * 1.1;
+      const tx = bx + (R() - .5) * 30, ty = H * (.44 + R() * .2), r = baseR * (.85 + R() * .25);
+      const g = stemPlant(scene, { bx, by, tx, ty, cx: (bx + tx) / 2 + (R() - .5) * 70, cy: (by + ty) / 2, R, gt: 3.4, amp: .7, color: '#5f9f5e', sw: Math.max(3.5, r * .1), leaves: 4, leafSize: r / 45 * 1.1 });
+      rose(g, tx, ty, r, R);
+      plants.push({ el: g, kind: 'rose', rank: Math.abs(bx - W / 2) });
+    }
+
+    // front grass
+    for (let x = -10; x < W + 10; x += 15 + R() * 10) clump(scene, x, H - R() * 10, 4, 40, 85, R, .5);
+  }
+
+  /* ---------- decorative particles (created once) ---------- */
+  function makeParticles() {
+    const R = rng(5), flies = document.getElementById('flies'), petals = document.getElementById('petals');
+    for (let i = 0; i < 26; i++) {
+      const d = document.createElement('i'); d.className = 'fly';
+      d.style.cssText = `left:${R() * 100}%;top:${30 + R() * 60}%;--dx:${(R() - .5) * 80}px;--dy:${-20 - R() * 70}px;--d:${6 + R() * 7}s;animation-delay:-${R() * 8}s`;
+      flies.appendChild(d);
+    }
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement('i'); p.className = 'petal';
+      p.style.cssText = `--l:${R() * 100}%;--w:${10 + R() * 9}px;--x:${(R() - .3) * 40}vw;--r:${(R() > .5 ? 1 : -1) * (180 + R() * 360)}deg;--dur:${13 + R() * 9}s;--dl:-${R() * 20}s`;
+      petals.appendChild(p);
+    }
+  }
+
+  /* ---------- the “i’m sorry” text, letter by letter ---------- */
+  function buildText() {
+    const h = document.getElementById('sorry'); h.textContent = '';
+    [...'i’m sorry'].forEach((c, i) => {
+      const s = document.createElement('span'); s.className = 'ch'; s.textContent = c;
+      s.style.setProperty('--k', i); s.setAttribute('aria-hidden', 'true'); h.appendChild(s);
+    });
+  }
+
+  /* ---------- sequence control ---------- */
+  function reset() {
+    timers.forEach(clearTimeout); timers = [];
+    body.classList.add('reset');
+    body.classList.remove('go', 'petals-on');
+    svg.classList.remove('started'); msg.classList.remove('show');
+    plants.forEach(p => p.el.classList.remove('grow', 'budded', 'open'));
+    void svg.getBoundingClientRect();           // flush with transitions off
+    body.classList.remove('reset');
+    void svg.getBoundingClientRect();           // flush with transitions back on
+  }
+
+  // Jump straight to the finished garden (reduced motion, or after a resize).
+  function finish() {
+    body.classList.add('reset', 'go', 'petals-on');
+    svg.classList.add('started'); msg.classList.add('show');
+    plants.forEach(p => p.el.classList.add('grow', 'budded', 'open'));
+    void svg.getBoundingClientRect();
+    body.classList.remove('reset');
+    state = 'done';
+  }
+
+  // The full story: soil -> grass -> stems -> leaves -> buds -> blooms -> words -> petals.
+  function run() {
+    reset();
+    if (reduce.matches) { finish(); return; }
+    state = 'running';
+    const GT = 3400;
+    at(80, () => { body.classList.add('go'); svg.classList.add('started'); });
+    plants.filter(p => p.kind === 'wild').sort((a, b) => a.rank - b.rank)
+      .forEach((p, i) => at(500 + i * 190, () => p.el.classList.add('grow')));
+    const roses = plants.filter(p => p.kind === 'rose').sort((a, b) => a.rank - b.rank);
+    roses.forEach((p, i) => {
+      const t = 1100 + i * 820;
+      at(t, () => p.el.classList.add('grow'));              // stem + leaves grow
+      at(t + GT, () => p.el.classList.add('budded'));       // bud appears
+      at(t + GT + 900, () => p.el.classList.add('open'));   // petals unfold
+    });
+    const firstOpen = 1100 + GT + 900;
+    at(firstOpen + 2400, () => msg.classList.add('show'));  // “i’m sorry” fades in
+    at(firstOpen + 4000, () => body.classList.add('petals-on'));
+    at(1100 + (roses.length - 1) * 820 + GT + 5200, () => { state = 'done'; });
+  }
+
+  /* ---------- init ---------- */
+  buildText(); makeParticles(); build();
+  btn.addEventListener('click', run);
+  let rt;
+  addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => {
+      if (Math.abs(innerWidth / innerHeight - lastAspect) < .12) return;
+      const was = state; build();
+      if (was !== 'idle') { timers.forEach(clearTimeout); timers = []; finish(); }
+    }, 250);
+  });
+})();
+</script>
+</body>
+</html>
